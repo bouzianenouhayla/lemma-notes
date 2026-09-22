@@ -9,17 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#fdfcf8; --paper-2:#ffffff; --ink:#16161a; --ink-2:#4a4a52; --rule:#c9d6ea; --margin:#e0403a;
-  --yellow:rgba(250,255,0,.8); --pink:rgba(255,79,200,.5); --green:rgba(57,255,136,.6); --blue:rgba(77,243,255,.55);
-  --purple:#6b2fd1; --line:#16161a;
+  --paper:#1f2a26; --paper-2:#26332e; --ink:#eef0e8; --ink-2:#b9c2b8; --rule:#35463f; --margin:#ff7a6e;
+  --yellow:rgba(240,230,90,.45); --pink:rgba(255,120,210,.4); --green:rgba(90,240,150,.35); --blue:rgba(100,220,255,.35);
+  --purple:#c7a6ff; --line:#eef0e8;
   --serif:'EB Garamond',Georgia,'Times New Roman',serif;
   --hand:'Kalam','Segoe Print','Bradley Hand',cursive;
   --marker:'Caveat','Segoe Print','Bradley Hand',cursive;
 }
-:root[data-theme="dark"]{
-  --paper:#1f2a26; --paper-2:#26332e; --ink:#eef0e8; --ink-2:#b9c2b8; --rule:#35463f; --margin:#ff7a6e;
-  --yellow:rgba(240,230,90,.45); --pink:rgba(255,120,210,.4); --green:rgba(90,240,150,.35); --blue:rgba(100,220,255,.35);
-  --purple:#c7a6ff; --line:#eef0e8;
+:root[data-theme="light"]{
+  --paper:#fdfcf8; --paper-2:#ffffff; --ink:#16161a; --ink-2:#4a4a52; --rule:#c9d6ea; --margin:#e0403a;
+  --yellow:rgba(250,255,0,.8); --pink:rgba(255,79,200,.5); --green:rgba(57,255,136,.6); --blue:rgba(77,243,255,.55);
+  --purple:#6b2fd1; --line:#16161a;
 }
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -423,10 +423,10 @@ window.addEventListener('hashchange', render);
 
 /* theme toggle */
 const tbtn = document.getElementById('theme');
-function applyTheme(t){ document.documentElement.dataset.theme = t || 'light'; tbtn.textContent = t==='dark' ? 'Paper' : 'Chalkboard'; }
+function applyTheme(t){ document.documentElement.dataset.theme = t || 'dark'; tbtn.textContent = t==='light' ? 'Chalkboard' : 'Paper'; }
 let saved=null; try{ saved=localStorage.getItem('lemma-theme'); }catch(e){}
 applyTheme(saved);
-tbtn.addEventListener('click',()=>{ const t = document.documentElement.dataset.theme==='dark' ? 'light' : 'dark'; applyTheme(t); try{localStorage.setItem('lemma-theme',t);}catch(e){} });
+tbtn.addEventListener('click',()=>{ const t = document.documentElement.dataset.theme==='light' ? 'dark' : 'light'; applyTheme(t); try{localStorage.setItem('lemma-theme',t);}catch(e){} });
 
 render();
 </script>
