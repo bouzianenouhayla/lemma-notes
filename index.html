@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lemma · AI papers, stated and proved</title>
-<meta name="description" content="Lemma: AI research papers rewritten as math-course notes. Definitions, theorems, proofs, and notes from production. By Nouhayla.">
+<meta name="description" content="Lemma: AI research papers rewritten as math-course notes. Definitions, theorems, proofs, and notes from production.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
@@ -106,6 +106,34 @@ a{color:inherit}
 .links{display:flex;flex-wrap:wrap;gap:18px;margin-top:36px;font-family:var(--hand);font-size:18px}
 .links a{display:inline-flex;align-items:center;min-height:44px;border:2px solid var(--line);padding:4px 16px;text-decoration:none;border-radius:15px 255px 15px 225px/225px 15px 255px 15px}
 
+/* deck: the carousel, shown at the size it was drawn */
+.deck{margin:22px 0 0}
+.stage{position:relative;width:100%;aspect-ratio:1080/1350;overflow:hidden;background:var(--paper-2);border:2.5px solid var(--line);border-radius:255px 14px 225px 14px/14px 225px 14px 255px}
+.slide{position:absolute;inset:0 auto auto 0;width:1080px;height:1350px;transform-origin:top left;box-sizing:border-box;
+  padding:56px 72px 48px 92px;display:flex;flex-direction:column;gap:22px;font-family:var(--hand);font-size:21px;line-height:1.38;
+  background:linear-gradient(90deg,transparent 58px,var(--margin) 58px,var(--margin) 61px,transparent 61px),var(--paper-2)}
+.slide[hidden]{display:none}
+.slide .top,.slide .foot{display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--serif);font-size:19px;color:var(--ink-2)}
+.slide .top{border-bottom:1.5px solid var(--line);padding-bottom:10px}
+.slide .foot{border-top:1.5px solid var(--line);padding-top:10px;margin-top:auto}
+.slide h3{margin:0;font-family:var(--marker);font-weight:700;font-size:74px;line-height:1}
+.slide h4{margin:0;font-family:var(--marker);font-weight:700;font-size:64px;line-height:1}
+.slide .sub{font-family:var(--serif);font-style:italic;font-size:23px;color:var(--ink-2)}
+.slide .two{display:grid;grid-template-columns:1fr 1fr;gap:44px;flex:1;min-height:0}
+.slide .two>div{display:flex;flex-direction:column;gap:16px}
+.slide .two>div+div{border-left:1px solid var(--rule);padding-left:40px}
+.slide .lbl{font-size:30px}
+.slide .mb{font-size:27px}
+.slide .ink{font-size:28px;margin-top:-6px}
+.deck-bar{display:flex;align-items:center;gap:14px;margin-top:14px;font-family:var(--hand);font-size:17px;flex-wrap:wrap}
+.deck-bar button{font:inherit;font-family:var(--marker);font-size:24px;background:none;border:2px solid var(--line);color:var(--ink);
+  border-radius:255px 15px 225px 15px/15px 225px 15px 255px;padding:2px 18px;min-height:44px;cursor:pointer}
+.deck-bar button[disabled]{opacity:.35;cursor:default}
+.dots{display:flex;gap:8px;margin-left:auto}
+.dots button{padding:0;width:34px;min-height:44px;border:none;background:none;cursor:pointer}
+.dots button span{display:block;height:6px;background:var(--rule);border-radius:3px}
+.dots button[aria-current="true"] span{background:var(--purple)}
+@media (max-width:820px){.slide .two{grid-template-columns:1fr;gap:18px}.slide .two>div+div{border-left:none;padding-left:0}}
 footer{font-family:var(--hand);color:var(--ink-2);padding:24px 0 40px;border-top:1.5px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 @media (max-width:820px){
@@ -135,7 +163,7 @@ footer{font-family:var(--hand);color:var(--ink-2);padding:24px 0 40px;border-top
   </header>
   <main id="app"></main>
   <footer>
-    <span>Lemma, notes by Nouhayla, AI/ML engineer in Paris</span>
+    <span>Lemma, notes on AI papers</span>
     <span>lemma-notes.com</span>
   </footer>
 </div>
@@ -167,38 +195,90 @@ const LEMMAS = [
 
 const ARCHIVE = [];
 
-/* ---------- reader bodies ---------- */
-const BODIES = {
-judge: `
-<div class="cols">
- <div>
-  <div><span class="lbl hl">Definition 1</span> (LLM judge). A model <i>J</i> that returns a verdict on answers to a question <i>q</i>:
-   <div class="mb">J(q, a, b) ∈ {A, B, tie}</div>
-   in pairwise mode, <span class="m">J(q, a) ∈ {1,…,10}</span> for single-answer grading, and <span class="m">J(q, a, a*)</span> when a reference answer is given.</div>
-  <div><span class="lbl hl">Definition 2</span> (Agreement).
-   <div class="mb">Agr(J₁, J₂) = ℙ<sub>x∼𝒟</sub>[ J₁(x) = J₂(x) ]</div></div>
-  <div><span class="ink">↳ ties are where it gets messy. Watch them.</span></div>
+/* ---------- slides: one array per lemma, in carousel order ---------- */
+const DECKS = {
+judge: [
+`<div class="top"><span><b class="hl" style="font-family:var(--marker);font-size:30px">Lemma</b> Nº 01</span><span>Zheng et al., NeurIPS 2023</span></div>
+ <div><h3><span class="hlP">On the Reliability of LLMs as Judges</span></h3>
+ <div class="sub">After "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"</div></div>
+ <div class="two">
+  <div>
+   <div><span class="lbl hl">Definition 1</span> (LLM judge). A model <i>J</i> that, given a question <i>q</i> and answers, returns a verdict. Three modes:<br>
+    (a) pairwise: <span class="m">J(q, a, b) ∈ {A, B, tie}</span><br>
+    (b) single: <span class="m">J(q, a) ∈ {1,…,10}</span><br>
+    (c) reference: <span class="m">J(q, a, a*)</span></div>
+   <div><span class="lbl hl">Definition 2</span> (Agreement). How often two judges give the same verdict:
+    <div class="mb">Agr(J₁, J₂) = ℙ<sub>x∼𝒟</sub>[ J₁(x) = J₂(x) ]</div></div>
+   <div><span class="ink">↳ ties are where it gets messy. Watch them.</span></div>
+   <div><span class="lbl hl">Setup.</span> MT-Bench: 80 multi-turn questions, 8 categories. Chatbot Arena: anonymous head-to-head votes from real users.</div>
+  </div>
+  <div>
+   <div class="thm"><span class="lbl hl">Theorem 1</span> (Agreement). <i>A strong LLM judge agrees with experts as often as experts agree with each other:</i><div class="mb" style="border:none">Agr(J, H) ≈ Agr(H, H′)</div></div>
+   <div class="thm"><span class="lbl hl">Theorem 2</span> (Bias). <i>LLM judges are biased by answer position, answer length and their own style, and are unreliable graders of math.</i></div>
+   <div class="thm"><span class="lbl hl">Theorem 3</span> (Mitigation). <i>Order swapping, few-shot examples and reference answers reduce these failures.</i></div>
+   <div class="thm" style="border-color:var(--purple)"><span class="lbl hlP">Corollary</span> (Production). <i>A judge is a model. It must itself be evaluated before its scores are trusted.</i></div>
+  </div>
  </div>
- <div>
-  <div class="thm"><span class="lbl hl">Theorem 1</span> (Agreement). <i>A strong judge agrees with experts as often as experts agree with each other:</i> <div class="mb" style="border:none">Agr(J, H) ≈ Agr(H, H′)</div></div>
-  <div class="thm"><span class="lbl hl">Theorem 2</span> (Bias). <i>Judges are biased by answer position, length and their own style, and grade math poorly.</i></div>
-  <div class="thm"><span class="lbl hl">Theorem 3</span> (Mitigation). <i>Order swapping, few-shot examples and reference answers reduce these failures.</i></div>
+ <div class="foot"><span>lemma-notes.com</span><span>Proofs follow → 1/4</span></div>`,
+
+`<div class="top"><span><b class="hl" style="font-family:var(--marker);font-size:30px">Lemma</b> Nº 01</span><span>Zheng et al., NeurIPS 2023</span></div>
+ <h4><span class="hlP">Proof of Theorem 1</span> <span style="font-family:var(--hand);font-size:32px;font-weight:400">(Agreement)</span></h4>
+ <div class="two">
+  <div>
+   <div><span class="lbl hl">Step 1.</span> Collect expert human votes on pairwise comparisons between model answers to MT-Bench questions.</div>
+   <div><span class="lbl hl">Step 2.</span> Run GPT-4 as a pairwise judge on the same pairs.</div>
+   <div><span class="lbl hl">Step 3.</span> Measure agreement: judge vs. human, and human vs. human, excluding ties.</div>
+   <div><span class="lbl hl">Remark.</span> Ties are where both humans and models disagree most. Including them lowers every agreement number.</div>
+  </div>
+  <div>
+   <div class="thm" style="text-align:center">
+    <div style="font-size:21px">ties excluded</div>
+    <div class="m" style="font-size:50px;line-height:1.3">Agr(GPT-4, H) = <span class="hlG">0.85</span></div>
+    <div class="m" style="font-size:50px;line-height:1.3">Agr(H, H′) = 0.81</div></div>
+   <div>Hence the judge sits at the level of inter-human agreement: it is as consistent with an expert as another expert would be.</div>
+   <div><span class="lbl hl">Limit.</span> The claim holds for a <i>strong</i> judge. Weaker models agree far less. <span class="qed" aria-label="end of proof"></span></div>
+   <div><span class="ink">↳ "strong judge" does a lot of work here. Test yours.</span></div>
+  </div>
  </div>
-</div>
-<h2><span class="hlP">Proofs, in short</span></h2>
-<div class="cols">
- <div>
-  <div><span class="lbl hl">Thm 1.</span> On MT-Bench pairs with expert votes, ties excluded, GPT-4 agrees with humans at <span class="m hlG">0.85</span> versus <span class="m">0.81</span> between humans. <span class="qed" aria-label="end of proof"></span></div>
-  <div><span class="ink">↳ "strong judge" does a lot of work here. Test yours.</span></div>
-  <div><span class="lbl hl">Thm 2.</span> Perturb the input without changing its quality: swap the order, pad the answer, change the author model. The verdict moves when the truth does not.
-   <div class="mb">C(J) = ℙ[ J(q,a,b) = σ(J(q,b,a)) ] ≈ 0.65 for GPT-4</div><span class="qed" aria-label="end of proof"></span></div>
+ <div class="foot"><span>lemma-notes.com</span><span>Proof of Theorem 2 → 2/4</span></div>`,
+
+`<div class="top"><span><b class="hl" style="font-family:var(--marker);font-size:30px">Lemma</b> Nº 01</span><span>Zheng et al., NeurIPS 2023</span></div>
+ <h4><span class="hlP">Proof of Theorem 2</span> <span style="font-family:var(--hand);font-size:32px;font-weight:400">(Bias)</span></h4>
+ <div class="two">
+  <div>
+   <div><span class="lbl hl">(i) Position.</span> Ask for a verdict, swap A and B, ask again. A consistent judge keeps its answer:
+    <div class="mb">C(J) = ℙ[ J(q,a,b) = σ(J(q,b,a)) ]</div>
+    where σ swaps A ↔ B. Measured <span class="m">C(GPT-4) ≈ 0.65</span>; weaker judges do much worse.</div>
+   <div><span class="lbl hl">(ii) Verbosity.</span> Pad an answer with repetitive, content-free list items. A fair judge should not prefer it. Weaker judges fall for it in <span class="hlG">&gt;90%</span> of cases; GPT-4 in <span class="hlG">~9%</span>.</div>
+  </div>
+  <div>
+   <div><span class="lbl hl">(iii) Self-preference.</span> Judges show a higher win rate for answers from their own model family. The paper calls this evidence suggestive, not conclusive.</div>
+   <div><span class="ink">↳ grade with a different model family.</span></div>
+   <div><span class="lbl hl">(iv) Math.</span> Judges mark wrong answers as correct even on problems they can solve themselves when asked directly. Grading ≠ solving.</div>
+   <div class="thm"><i>Each bias is measured by a controlled perturbation of the input. The verdict changes when the truth does not.</i> <span class="qed" aria-label="end of proof"></span></div>
+  </div>
  </div>
- <div>
-  <div><span class="lbl hl">Thm 3.</span> Keep only verdicts that survive the swap, show a few solved examples, and give a reference answer on math. <span class="qed" aria-label="end of proof"></span></div>
-  <div><span class="ink">↳ few-shot is the cheapest fix. Start there.</span></div>
-  <div class="thm"><span class="lbl hlP">Corollary.</span> <i>A judge is a model. It must be evaluated before its scores are trusted:</i> <div class="mb" style="border:none">trust(J) ⇐ Agr(J, H) on 𝒟<sub>yours</sub></div></div>
+ <div class="foot"><span>lemma-notes.com</span><span>Proof of Theorem 3 → 3/4</span></div>`,
+
+`<div class="top"><span><b class="hl" style="font-family:var(--marker);font-size:30px">Lemma</b> Nº 01</span><span>Zheng et al., NeurIPS 2023</span></div>
+ <h4><span class="hlP">Proof of Theorem 3 &amp; Corollary</span></h4>
+ <div class="two">
+  <div>
+   <div><span class="lbl hl">Swap.</span> Judge both orders, keep only consistent verdicts:
+    <div class="mb">J*(q,a,b) = J(q,a,b) if consistent, else tie</div>Position bias is removed by construction.</div>
+   <div><span class="lbl hl">Few-shot.</span> Showing the judge examples of correct verdicts raises GPT-4's order consistency from <span class="hlG">~65%</span> to <span class="hlG">~78%</span>.</div>
+   <div><span class="ink">↳ cheapest fix on this page. Start here.</span></div>
+   <div><span class="lbl hl">Reference.</span> Solve first, or give the judge the reference answer. On math, the failure rate drops from <span class="hlG">70%</span> to <span class="hlG">15%</span>. <span class="qed" aria-label="end of proof"></span></div>
+  </div>
+  <div>
+   <div class="thm" style="border-color:var(--purple)"><span class="lbl hlP">Proof of Corollary.</span> <i>By Thm 2, J depends on factors unrelated to quality. By Thm 1, its value is only its measured agreement with humans. Hence</i>
+    <div class="mb" style="border:none">trust(J) ⇐ Agr(J, H) on 𝒟<sub>yours</sub></div> <span class="qed" aria-label="end of proof"></span></div>
+   <div><span class="lbl hl">In practice.</span> [YOUR PRODUCTION NOTE]</div>
+   <div class="sub">Paper and sources linked below.</div>
+  </div>
  </div>
-</div>`
+ <div class="foot"><span>lemma-notes.com</span><span>Next paper soon · 4/4</span></div>`
+]
 };
 
 /* ---------- rendering ---------- */
@@ -274,13 +354,59 @@ function lemmaView(id){
     <div class="lab" style="font-family:var(--marker);font-weight:700;font-size:30px"><span class="hl">${label(l)}</span> <span style="color:var(--ink-2)">§${chIndex(l.chapter)} ${esc(CHAPTERS.find(c=>c.id===l.chapter).title)}</span></div>
     <h1><span class="hlP">${esc(l.title)}</span></h1>
     <p class="src">After ${esc(l.paper)}</p>
-    ${BODIES[l.body]||''}
+    ${deckHtml(l.body)}
     <div class="links">
      <a href="${esc(l.paperUrl)}">Read the paper</a>
-     ${isLink(l.postUrl)?`<a href="${esc(l.postUrl)}">See the carousel on LinkedIn</a>`:''}
+     ${isLink(l.postUrl)?`<a href="${esc(l.postUrl)}">Discuss it on LinkedIn</a>`:''}
     </div>
    </article>`;
+  mountDeck();
   window.scrollTo(0,0);
+}
+
+/* ---------- deck: scale the drawn page to the column, flip through it ---------- */
+function deckHtml(key){
+  const slides = DECKS[key];
+  if(!slides) return '';
+  return `<section class="deck" aria-roledescription="carousel" aria-label="The pages of this lemma">
+    <div class="stage" id="stage">${slides.map((h,i)=>`<article class="slide" data-i="${i}" ${i?'hidden':''} aria-label="Page ${i+1} of ${slides.length}">${h}</article>`).join('')}</div>
+    <div class="deck-bar">
+      <button type="button" id="prev" disabled>← Back</button>
+      <button type="button" id="next">Next page →</button>
+      <span id="count">1 / ${slides.length}</span>
+      <span class="dots" id="dots">${slides.map((_,i)=>`<button type="button" data-go="${i}" aria-current="${i===0}" aria-label="Go to page ${i+1}"><span></span></button>`).join('')}</span>
+    </div>
+  </section>`;
+}
+
+function mountDeck(){
+  const stage = document.getElementById('stage');
+  if(!stage) return;
+  const slides = [...stage.querySelectorAll('.slide')];
+  const prev = document.getElementById('prev'), next = document.getElementById('next');
+  const count = document.getElementById('count'), dots = document.getElementById('dots');
+  let i = 0;
+
+  const fit = () => { const s = stage.clientWidth/1080; slides.forEach(el=>el.style.transform=`scale(${s})`); };
+  const show = n => {
+    i = Math.max(0, Math.min(slides.length-1, n));
+    slides.forEach((el,k)=>el.hidden = k!==i);
+    prev.disabled = i===0; next.disabled = i===slides.length-1;
+    count.textContent = `${i+1} / ${slides.length}`;
+    [...dots.children].forEach((b,k)=>b.setAttribute('aria-current', k===i));
+    fit();
+  };
+
+  prev.addEventListener('click',()=>show(i-1));
+  next.addEventListener('click',()=>show(i+1));
+  dots.addEventListener('click',e=>{const b=e.target.closest('[data-go]'); if(b) show(+b.dataset.go);});
+  stage.addEventListener('keydown',e=>{ if(e.key==='ArrowRight') show(i+1); if(e.key==='ArrowLeft') show(i-1); });
+  let x0=null;
+  stage.addEventListener('touchstart',e=>{x0=e.changedTouches[0].clientX;},{passive:true});
+  stage.addEventListener('touchend',e=>{ if(x0===null) return; const d=e.changedTouches[0].clientX-x0; if(Math.abs(d)>50) show(i+(d<0?1:-1)); x0=null; },{passive:true});
+  addEventListener('resize', fit);
+  stage.tabIndex = 0;
+  show(0);
 }
 
 function aboutView(){
