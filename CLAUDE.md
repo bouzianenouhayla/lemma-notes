@@ -33,6 +33,9 @@ The table of contents, numbering, counts and search update on their own.
 
 ## House style
 
+- A lemma's `title` is the paper's own title, verbatim. Never replace it with a
+  claim or a rewritten headline. The claim goes in `statement`.
+
 - Structure every reading page as definitions and theorems first, then proofs.
   Each proof ends with `<span class="qed" aria-label="end of proof"></span>`.
 - Author's asides are purple ink: `<span class="ink">↳ …</span>`. Write them in
