@@ -51,6 +51,5 @@ The table of contents, numbering, counts and search update on their own.
 
 - Keep the site to one self-contained file with no build step and no external
   scripts. Only the Google Fonts stylesheet is loaded from outside.
-- Keep it working at phone width, keyboard-navigable, and legible in both the
-  paper and chalkboard themes.
+- Keep it working at phone width and keyboard-navigable.
 - Show the diff and wait for approval before pushing; the site is public.
