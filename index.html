@@ -189,6 +189,17 @@ const CHAPTERS = [
 
 const LEMMAS = [
   {
+    id:"attention", chapter:"foundation", num:1,
+    title:"Attention alone is enough to read a sentence",
+    statement:"Drop recurrence and convolution entirely: attention reaches state of the art translation, and trains in a fraction of the time.",
+    paper:"Vaswani et al., 2017. Attention Is All You Need",
+    paperUrl:"https://arxiv.org/abs/1706.03762",
+    postUrl:"[LINKEDIN POST URL]",
+    date:"2026",
+    ink:"the paper every other lemma here depends on.",
+    body:"attention"
+  },
+  {
     id:"llm-as-a-judge", chapter:"evals", num:1,
     title:"LLM judges agree with humans as often as humans do",
     statement:"A strong LLM judge reaches expert-level agreement, but it is biased by position, length and its own style.",
@@ -205,6 +216,88 @@ const ARCHIVE = [];
 
 /* ---------- slides: one array per lemma, in carousel order ---------- */
 const DECKS = {
+attention: [
+`<div class="top"><span><b class="hl" style="font-family:var(--marker);font-size:30px">Lemma</b> Nº 02</span><span>Vaswani et al., NeurIPS 2017</span></div>
+ <div><h3><span class="hlP">Attention Is All You Need</span></h3>
+ <div class="sub">The paper that removed recurrence from sequence models</div></div>
+ <div class="two">
+  <div>
+   <div><span class="lbl hl">Definition 1</span> (Scaled dot-product attention). Queries <i>Q</i>, keys <i>K</i>, values <i>V</i>:
+    <div class="mb">Attention(Q,K,V) = softmax(QKᵀ / √d<sub>k</sub>) V</div>
+    Every position reads every other position in one step, weighted by similarity.</div>
+   <div><span class="lbl hl">Definition 2</span> (Multi-head). Run <i>h</i> attentions on projections of size <span class="m">d<sub>k</sub> = d<sub>model</sub>/h</span> and concatenate, so one layer can attend to several kinds of relation at once.</div>
+   <div><span class="ink">↳ the √d is not decoration. Without it the softmax saturates.</span></div>
+   <div><span class="lbl hl">Setup.</span> Encoder-decoder, 6 layers each, <span class="m">d<sub>model</sub> = 512</span>, 8 heads. WMT 2014 English→German and English→French.</div>
+  </div>
+  <div>
+   <div class="thm"><span class="lbl hl">Theorem 1</span> (Sufficiency). <i>Recurrence and convolution are not necessary. Attention alone reaches state of the art translation.</i></div>
+   <div class="thm"><span class="lbl hl">Theorem 2</span> (Path length). <i>Self-attention links any two positions in a constant number of sequential steps, where recurrence needs a number growing with the distance.</i></div>
+   <div class="thm"><span class="lbl hl">Theorem 3</span> (Cost). <i>A self-attention layer costs</i> <span class="m">O(n²·d)</span><i>, a recurrent one</i> <span class="m">O(n·d²)</span><i>: attention wins while the sequence is shorter than the model is wide.</i></div>
+   <div class="thm" style="border-color:var(--purple)"><span class="lbl hlP">Corollary</span> (Order). <i>Attention is blind to position, so order has to be added back explicitly.</i></div>
+  </div>
+ </div>
+ <div class="foot"><span>lemma-notes.com</span><span>Proofs follow → 1/4</span></div>`,
+
+`<div class="top"><span><b class="hl" style="font-family:var(--marker);font-size:30px">Lemma</b> Nº 02</span><span>Vaswani et al., NeurIPS 2017</span></div>
+ <h4><span class="hlP">Proof of Theorem 1</span> <span style="font-family:var(--hand);font-size:32px;font-weight:400">(Sufficiency)</span></h4>
+ <div class="two">
+  <div>
+   <div><span class="lbl hl">Step 1.</span> Build a model with no recurrence and no convolution: stacked self-attention and position-wise feed-forward layers, plus residual connections and layer normalisation.</div>
+   <div><span class="lbl hl">Step 2.</span> Train it on the same WMT 2014 benchmarks the recurrent and convolutional models were measured on.</div>
+   <div><span class="lbl hl">Step 3.</span> Compare BLEU, and compare the training cost that bought it.</div>
+  </div>
+  <div>
+   <div class="thm" style="text-align:center">
+    <div style="font-size:21px">WMT 2014, big model</div>
+    <div class="m" style="font-size:46px;line-height:1.3">EN→DE <span class="hlG">28.4</span> BLEU</div>
+    <div class="m" style="font-size:46px;line-height:1.3">EN→FR <span class="hlG">41.8</span> BLEU</div>
+   </div>
+   <div>On English→German that is more than 2 BLEU above the previous best results, ensembles included. The French score came after 3.5 days on eight GPUs, a small fraction of the training cost of the models it passed. <span class="qed" aria-label="end of proof"></span></div>
+   <div><span class="ink">↳ the cost line mattered more than the BLEU line.</span></div>
+  </div>
+ </div>
+ <div class="foot"><span>lemma-notes.com</span><span>Proof of Theorem 2 → 2/4</span></div>`,
+
+`<div class="top"><span><b class="hl" style="font-family:var(--marker);font-size:30px">Lemma</b> Nº 02</span><span>Vaswani et al., NeurIPS 2017</span></div>
+ <h4><span class="hlP">Proof of Theorems 2 and 3</span></h4>
+ <div class="two">
+  <div>
+   <div><span class="lbl hl">Path length.</span> To learn that two words depend on each other, the signal must travel between them. Count the steps:
+    <div class="mb">self-attention O(1) · recurrent O(n) · convolutional O(log<sub>k</sub> n)</div>
+    Shorter paths make long-range dependencies easier to learn. <span class="qed" aria-label="end of proof"></span></div>
+   <div><span class="ink">↳ this is the whole reason long context became thinkable.</span></div>
+  </div>
+  <div>
+   <div><span class="lbl hl">Cost per layer.</span>
+    <div class="mb">self-attention O(n²·d) · recurrent O(n·d²)</div>
+    With <span class="m">n = 100</span> tokens and <span class="m">d = 512</span>, attention is the cheaper of the two; the comparison flips as sequences grow. <span class="qed" aria-label="end of proof"></span></div>
+   <div><span class="lbl hl">Parallelism.</span> A recurrent layer must finish position <i>t</i> before starting <i>t+1</i>. Attention computes all positions at once, which is what turns extra GPUs into faster training.</div>
+   <div><span class="ink">↳ every context-window fight since starts at that n².</span></div>
+  </div>
+ </div>
+ <div class="foot"><span>lemma-notes.com</span><span>Proof of the corollary → 3/4</span></div>`,
+
+`<div class="top"><span><b class="hl" style="font-family:var(--marker);font-size:30px">Lemma</b> Nº 02</span><span>Vaswani et al., NeurIPS 2017</span></div>
+ <h4><span class="hlP">Proof of the Corollary</span> <span style="font-family:var(--hand);font-size:32px;font-weight:400">(Order)</span></h4>
+ <div class="two">
+  <div>
+   <div><span class="lbl hl">Claim.</span> Permute the input tokens and every attention weight simply permutes with them: the layer computes the same thing. A model of pure attention cannot tell "dog bites man" from "man bites dog".</div>
+   <div><span class="lbl hl">Fix.</span> Add a positional signal to each embedding before the first layer, using sinusoids of different frequencies:
+    <div class="mb">PE(pos, 2i) = sin(pos / 10000<sup>2i/d</sup>)</div>
+    Learned position embeddings work about as well; the sinusoids were chosen so the model might extrapolate past the lengths it saw. <span class="qed" aria-label="end of proof"></span></div>
+  </div>
+  <div>
+   <div class="thm" style="border-color:var(--purple)"><span class="lbl hlP">What it started.</span> <i>Strip the encoder and you get GPT; strip the decoder and you get BERT. Nearly everything in the chapters that follow inherits this layer.</i></div>
+   <div><span class="lbl hl">In practice.</span> [YOUR PRODUCTION NOTE]</div>
+   <div><span class="lbl hl">Look it up.</span><br>
+    Vaswani et al., 2017 · arXiv:1706.03762<br>
+    The Illustrated Transformer · jalammar.github.io<br>
+    lemma-notes.com</div>
+  </div>
+ </div>
+ <div class="foot"><span>lemma-notes.com</span><span>4/4</span></div>`
+],
+
 judge: [
 `<div class="top"><span><b class="hl" style="font-family:var(--marker);font-size:30px">Lemma</b> Nº 01</span><span>Zheng et al., NeurIPS 2023</span></div>
  <div><h3><span class="hlP">On the Reliability of LLMs as Judges</span></h3>
