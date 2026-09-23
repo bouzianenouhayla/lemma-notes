@@ -130,8 +130,8 @@ a{color:inherit}
 .slide h3{margin:0;font-family:var(--marker);font-weight:700;font-size:74px;line-height:1}
 .slide h4{margin:0;font-family:var(--marker);font-weight:700;font-size:64px;line-height:1}
 .slide .sub{font-family:var(--serif);font-style:italic;font-size:23px;color:var(--ink-2)}
-.slide .two{display:grid;grid-template-columns:1fr 1fr;gap:44px;flex:1;min-height:0}
-.slide .two>div{display:flex;flex-direction:column;gap:16px}
+.slide .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:44px;flex:1;min-height:0}
+.slide .two>div{display:flex;flex-direction:column;gap:16px;min-width:0}
 .slide .two>div+div{border-left:1px solid var(--rule);padding-left:40px}
 .slide .lbl{font-size:30px}
 .slide .mb{font-size:27px}
@@ -154,7 +154,7 @@ body.blank .ink{display:none}
   .slide:last-child{break-after:auto;page-break-after:auto}
   .slide h3{font-size:34px}
   .slide h4{font-size:30px}
-  .slide .two{display:grid;grid-template-columns:1fr 1fr;gap:22px;flex:0 1 auto}
+  .slide .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;flex:0 1 auto}
   .slide .lbl{font-size:20px}
   .slide .mb{font-size:15pt}
   .slide .nm,.slide .top,.slide .foot{font-size:10pt}
@@ -274,8 +274,9 @@ attention: [
   <div>
    <div class="thm" style="text-align:center">
     <div style="font-size:21px">WMT 2014, big model</div>
-    <div class="m" style="font-size:46px;line-height:1.3">EN→DE <span class="hlG">28.4</span> BLEU</div>
-    <div class="m" style="font-size:46px;line-height:1.3">EN→FR <span class="hlG">41.8</span> BLEU</div>
+    <div class="m" style="font-size:38px;line-height:1.35">EN→DE <span class="hlG">28.4</span></div>
+    <div class="m" style="font-size:38px;line-height:1.35">EN→FR <span class="hlG">41.8</span></div>
+    <div style="font-size:19px;color:var(--ink-2)">BLEU</div>
    </div>
    <div>On English→German that is more than 2 BLEU above the previous best, ensembles included. The French result came after 3.5 days on eight GPUs, a small fraction of the training cost of the models it passed. <span class="qed" aria-label="end of proof"></span></div>
    <div><span class="ink">↳ the cost line mattered more than the BLEU line.</span></div>
@@ -358,8 +359,8 @@ judge: [
   <div>
    <div class="thm" style="text-align:center">
     <div style="font-size:21px">ties excluded</div>
-    <div class="m" style="font-size:50px;line-height:1.3">Agr(GPT-4, H) = <span class="hlG">0.85</span></div>
-    <div class="m" style="font-size:50px;line-height:1.3">Agr(H, H′) = 0.81</div></div>
+    <div class="m" style="font-size:34px;line-height:1.4">Agr(GPT-4, H) = <span class="hlG">0.85</span></div>
+    <div class="m" style="font-size:34px;line-height:1.4">Agr(H, H′) = 0.81</div></div>
    <div>Hence the judge sits at the level of inter-human agreement: it is as consistent with an expert as another expert would be.</div>
    <div><span class="lbl hl">Limit.</span> The claim holds for a <i>strong</i> judge. Weaker models agree far less. <span class="qed" aria-label="end of proof"></span></div>
    <div><span class="ink">↳ "strong judge" does a lot of work here. Test yours.</span></div>
