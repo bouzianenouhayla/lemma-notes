@@ -136,6 +136,33 @@ a{color:inherit}
 .slide .lbl{font-size:30px}
 .slide .mb{font-size:27px}
 .slide .ink{font-size:28px;margin-top:-6px}
+/* room to write, and the printed sheet */
+.notebox{display:none;margin-top:14px;border-top:1.5px dashed var(--ink-2);padding-top:6px}
+.notebox::before{content:'your note';font-family:var(--marker);font-size:26px;color:var(--ink-2)}
+.notebox .lines{height:150px;background-image:repeating-linear-gradient(transparent 0 33px,var(--rule) 33px 34px)}
+body.blank .notebox{display:block}
+body.blank .ink{display:none}
+@media print{
+  @page{size:A4 portrait;margin:14mm}
+  .bar,.deck-bar,.links,.back,footer,.hero,.shelf,.board,.shelf-bar,.chapter{display:none !important}
+  .wrap{max-width:none;padding:0;background-image:none}
+  .reader{max-width:none;padding:0}
+  .reader h1,.reader .src{display:none}
+  .stage{position:static;aspect-ratio:auto;width:auto;height:auto;overflow:visible;border:none;border-radius:0;background:none}
+  .slide,.slide[hidden]{position:static;display:flex !important;width:100%;height:auto;min-height:0;
+    transform:none !important;padding:0;background:none;break-after:page;page-break-after:always;gap:14px}
+  .slide:last-child{break-after:auto;page-break-after:auto}
+  .slide h3{font-size:34px}
+  .slide h4{font-size:30px}
+  .slide .two{display:grid;grid-template-columns:1fr 1fr;gap:22px;flex:0 1 auto}
+  .slide .lbl{font-size:20px}
+  .slide .mb{font-size:15pt}
+  .slide .nm,.slide .top,.slide .foot{font-size:10pt}
+  .slide,.slide .two>div{font-size:11pt;line-height:1.35}
+  .notebox{break-inside:avoid;page-break-inside:avoid;margin-top:10px}
+  .notebox .lines{height:38mm}
+  .slide .two>div{gap:10px}
+}
 .deck-bar{display:flex;align-items:center;gap:14px;margin-top:14px;font-family:var(--hand);font-size:17px;flex-wrap:wrap}
 .deck-bar button{font:inherit;font-family:var(--marker);font-size:24px;background:none;border:2px solid var(--line);color:var(--ink);
   border-radius:255px 15px 225px 15px/15px 225px 15px 255px;padding:2px 18px;min-height:44px;cursor:pointer}
@@ -476,12 +503,16 @@ function deckHtml(key){
   const slides = DECKS[key];
   if(!slides) return '';
   return `<section class="deck" aria-roledescription="carousel" aria-label="The pages of this lemma">
-    <div class="stage" id="stage">${slides.map((h,i)=>`<article class="slide" data-i="${i}" ${i?'hidden':''} aria-label="Page ${i+1} of ${slides.length}">${h}</article>`).join('')}</div>
+    <div class="stage" id="stage">${slides.map((h,i)=>`<article class="slide" data-i="${i}" ${i?'hidden':''} aria-label="Page ${i+1} of ${slides.length}">${h}<div class="notebox" aria-hidden="true"><div class="lines"></div></div></article>`).join('')}</div>
     <div class="deck-bar">
       <button type="button" id="prev" disabled>← Back</button>
       <button type="button" id="next">Next page →</button>
       <span id="count">1 / ${slides.length}</span>
       <span class="dots" id="dots">${slides.map((_,i)=>`<button type="button" data-go="${i}" aria-current="${i===0}" aria-label="Go to page ${i+1}"><span></span></button>`).join('')}</span>
+    </div>
+    <div class="deck-bar">
+      <button type="button" id="dl-notes">Save as PDF, with my notes</button>
+      <button type="button" id="dl-blank">Save a blank copy to annotate</button>
     </div>
   </section>`;
 }
@@ -513,6 +544,16 @@ function mountDeck(){
   stage.addEventListener('touchend',e=>{ if(x0===null) return; const d=e.changedTouches[0].clientX-x0; if(Math.abs(d)>50) show(i+(d<0?1:-1)); x0=null; },{passive:true});
   addEventListener('resize', fit);
   stage.tabIndex = 0;
+
+  const printDeck = blank => {
+    document.body.classList.toggle('blank', blank);
+    const after = () => { document.body.classList.remove('blank'); removeEventListener('afterprint', after); };
+    addEventListener('afterprint', after);
+    print();
+  };
+  document.getElementById('dl-notes').addEventListener('click',()=>printDeck(false));
+  document.getElementById('dl-blank').addEventListener('click',()=>printDeck(true));
+
   show(0);
 }
 
