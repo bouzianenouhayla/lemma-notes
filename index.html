@@ -55,7 +55,7 @@ a{color:inherit}
 .hero-side a.btn{display:inline-flex;align-items:center;min-height:44px;margin-top:6px;font-family:var(--marker);font-weight:700;font-size:26px;text-decoration:none}
 
 /* library */
-.lib{display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px;padding:24px 0 72px}
+.lib{padding:10px 0 72px}
 .toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 18px);align-self:start;font-family:var(--hand)}
 .toc h2{font-family:var(--marker);font-size:34px;margin:0 0 6px}
 .toc ol{list-style:none;margin:0;padding:0}
@@ -63,9 +63,31 @@ a{color:inherit}
 .toc button[aria-pressed="true"]{background:linear-gradient(100deg,transparent 1%,var(--yellow) 3%,var(--yellow) 96%,transparent 99%)}
 .toc button:focus-visible{outline:3px dashed var(--purple)}
 .toc .n{color:var(--ink-2)}
-.search{display:block;margin-top:18px}
+.search{display:flex;align-items:baseline;gap:10px;margin-left:auto}
 .search span{display:block;font-size:16px;color:var(--ink-2)}
-.search input{width:100%;font:inherit;font-family:var(--hand);font-size:18px;background:var(--paper-2);color:var(--ink);border:2px solid var(--line);padding:8px 10px;min-height:44px;border-radius:12px 225px 12px 255px/255px 12px 225px 12px}
+.search input{width:220px;font:inherit;font-family:var(--hand);font-size:18px;background:var(--paper-2);color:var(--ink);border:2px solid var(--line);padding:8px 10px;min-height:44px;border-radius:12px 225px 12px 255px/255px 12px 225px 12px}
+
+/* shelf: the chapters as book spines */
+.shelf{display:flex;align-items:flex-end;gap:12px;padding:0 6px 0;margin:8px 0 0;overflow-x:auto}
+.spine{position:relative;flex:0 0 auto;width:74px;padding:14px 0 0;border:2px solid var(--line);border-bottom:none;
+  background:var(--paper-2);cursor:pointer;font:inherit;display:flex;flex-direction:column;align-items:center;
+  border-radius:6px 6px 0 0;transition:transform .12s ease}
+.spine:nth-child(odd){background:var(--paper)}
+.spine .band{width:56px;height:9px;background:var(--rule);margin-bottom:12px}
+.spine[aria-pressed="true"] .band{background:var(--yellow)}
+.spine .name{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--serif);font-weight:500;font-size:19px;
+  letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;margin-bottom:14px}
+.spine .num{width:100%;border-top:2px solid var(--line);padding:6px 0 8px;font-family:var(--serif);font-size:15px;color:var(--ink-2)}
+.spine:hover{transform:translateY(-6px)}
+.spine[aria-pressed="true"]{transform:translateY(-10px)}
+.spine:focus-visible{outline:3px dashed var(--purple);outline-offset:2px}
+.board{height:10px;background:var(--line);border-radius:2px;margin:0 0 26px}
+.shelf-bar{display:flex;align-items:baseline;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-top:18px}
+.shelf-bar h2{font-family:var(--marker);font-size:34px;margin:0}
+.allbtn{font:inherit;font-family:var(--hand);font-size:17px;background:none;border:none;color:var(--ink-2);cursor:pointer;
+  min-height:44px;padding:0 4px;border-bottom:2px solid transparent}
+.allbtn[aria-pressed="true"]{color:var(--ink);border-color:var(--ink)}
+@media (max-width:820px){.spine{width:64px}.spine .name{font-size:17px}}
 
 .chapter{margin:0 0 56px}
 .chapter h3{margin:0 0 4px;font-family:var(--serif);font-weight:500;font-size:40px;line-height:1.15}
@@ -131,8 +153,7 @@ footer{font-family:var(--hand);color:var(--ink-2);padding:24px 0 40px;border-top
 @media (max-width:820px){
   .wrap{padding:0 18px 0 40px;
     background-image:linear-gradient(90deg,transparent 22px,var(--margin) 22px,var(--margin) 24px,transparent 24px),repeating-linear-gradient(transparent 0 33px,var(--rule) 33px 34px)}
-  .hero,.lib,.cols{grid-template-columns:1fr}
-  .toc{position:static}
+  .hero,.cols{grid-template-columns:1fr}
   .cols>div+div{border-left:none;padding-left:0}
   .bar nav{gap:12px}
 }
@@ -288,15 +309,20 @@ function libraryView(){
   const q = state.q.trim().toLowerCase();
   const match = t => !q || t.toLowerCase().includes(q);
   const count = id => LEMMAS.filter(l=>l.chapter===id).length + ARCHIVE.filter(a=>a.chapter===id).length;
+  const roman = n => ['I','II','III','IV','V','VI','VII','VIII','IX','X'][n-1] || String(n);
   const toc = `
-   <aside class="toc" aria-label="Chapters">
-    <h2>Contents</h2>
-    <ol>
-     <li><button type="button" data-ch="all" aria-pressed="${state.chapter==='all'}"><span>All chapters</span><span class="n">${LEMMAS.length+ARCHIVE.length}</span></button></li>
-     ${CHAPTERS.map((c,i)=>`<li><button type="button" data-ch="${c.id}" aria-pressed="${state.chapter===c.id}"><span>§${i+1} ${esc(c.title)}</span><span class="n">${count(c.id)}</span></button></li>`).join('')}
-    </ol>
-    <label class="search"><span>Search the notes</span><input id="q" type="search" value="${esc(state.q)}" placeholder="judge, RAG, SFT…"></label>
-   </aside>`;
+   <section aria-label="Chapters">
+    <div class="shelf">
+     ${CHAPTERS.map((c,i)=>`<button type="button" class="spine" data-ch="${c.id}" aria-pressed="${state.chapter===c.id}" title="${esc(c.title)}, ${count(c.id)} so far">
+       <span class="band"></span><span class="name">${esc(c.title)}</span><span class="num">${roman(i+1)}</span></button>`).join('')}
+    </div>
+    <div class="board"></div>
+    <div class="shelf-bar">
+     <h2>Contents</h2>
+     <button type="button" class="allbtn" data-ch="all" aria-pressed="${state.chapter==='all'}">Show every chapter</button>
+     <label class="search"><span>Search the notes</span><input id="q" type="search" value="${esc(state.q)}" placeholder="judge, RAG, SFT…"></label>
+    </div>
+   </section>`;
   const chapters = CHAPTERS.filter(c => state.chapter==='all' || state.chapter===c.id).map((c,i)=>{
     const ls = LEMMAS.filter(l=>l.chapter===c.id && match(l.title+' '+l.statement+' '+l.paper));
     const as = ARCHIVE.filter(a=>a.chapter===c.id && match(a.title+' '+a.note));
@@ -333,9 +359,10 @@ function libraryView(){
      <a class="btn" href="https://www.linkedin.com/in/nbouziane/">Follow the series</a>
     </div>
    </section>
-   <div class="lib">${toc}<div id="chapters">${chapters}</div></div>`;
+   ${toc}
+   <div class="lib"><div id="chapters">${chapters}</div></div>`;
 
-  app.querySelectorAll('.toc button').forEach(b=>b.addEventListener('click',()=>{state.chapter=b.dataset.ch;render();}));
+  app.querySelectorAll('[data-ch]').forEach(b=>b.addEventListener('click',()=>{state.chapter = state.chapter===b.dataset.ch ? 'all' : b.dataset.ch;render();}));
   const input = document.getElementById('q');
   input.addEventListener('input',()=>{state.q=input.value;const pos=input.selectionStart;render();const i=document.getElementById('q');i.focus();i.setSelectionRange(pos,pos);});
 }
