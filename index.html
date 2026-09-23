@@ -16,11 +16,6 @@
   --hand:'Kalam','Segoe Print','Bradley Hand',cursive;
   --marker:'Caveat','Segoe Print','Bradley Hand',cursive;
 }
-:root[data-theme="dark"]{
-  --paper:#1f2a26; --paper-2:#26332e; --ink:#eef0e8; --ink-2:#b9c2b8; --rule:#35463f; --margin:#ff7a6e;
-  --yellow:rgba(240,230,90,.45); --pink:rgba(255,120,210,.4); --green:rgba(90,240,150,.35); --blue:rgba(100,220,255,.35);
-  --purple:#c7a6ff; --line:#eef0e8;
-}
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
@@ -42,7 +37,6 @@ a{color:inherit}
 .bar nav{display:flex;gap:20px;align-items:center;font-family:var(--hand);font-size:17px}
 .bar nav a{text-decoration:none;border-bottom:2px solid transparent}
 .bar nav a:hover{border-color:var(--ink)}
-.theme{font:inherit;background:none;border:2px solid var(--line);color:var(--ink);border-radius:255px 15px 225px 15px/15px 225px 15px 255px;padding:6px 12px;min-height:44px;cursor:pointer}
 
 /* hero */
 .hero{padding:48px 0 36px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:40px;align-items:end}
@@ -171,7 +165,6 @@ footer{font-family:var(--hand);color:var(--ink-2);padding:24px 0 40px;border-top
       <a href="#/">Library</a>
       <a href="#/about">About</a>
       <a href="https://www.linkedin.com/in/nbouziane/">Follow on LinkedIn</a>
-      <button class="theme" id="theme" type="button" aria-label="Switch light or chalkboard mode">Chalkboard</button>
     </nav>
   </header>
   <main id="app"></main>
@@ -450,13 +443,6 @@ function render(){
   else libraryView();
 }
 window.addEventListener('hashchange', render);
-
-/* theme toggle */
-const tbtn = document.getElementById('theme');
-function applyTheme(t){ document.documentElement.dataset.theme = t || 'light'; tbtn.textContent = t==='dark' ? 'Paper' : 'Chalkboard'; }
-let saved=null; try{ saved=localStorage.getItem('lemma-theme-2'); }catch(e){}
-applyTheme(saved);
-tbtn.addEventListener('click',()=>{ const t = document.documentElement.dataset.theme==='dark' ? 'light' : 'dark'; applyTheme(t); try{localStorage.setItem('lemma-theme-2',t);}catch(e){} });
 
 render();
 </script>
