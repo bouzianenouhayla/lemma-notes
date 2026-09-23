@@ -427,9 +427,9 @@ window.addEventListener('hashchange', render);
 /* theme toggle */
 const tbtn = document.getElementById('theme');
 function applyTheme(t){ document.documentElement.dataset.theme = t || 'light'; tbtn.textContent = t==='dark' ? 'Paper' : 'Chalkboard'; }
-let saved=null; try{ saved=localStorage.getItem('lemma-theme'); }catch(e){}
+let saved=null; try{ saved=localStorage.getItem('lemma-theme-2'); }catch(e){}
 applyTheme(saved);
-tbtn.addEventListener('click',()=>{ const t = document.documentElement.dataset.theme==='dark' ? 'light' : 'dark'; applyTheme(t); try{localStorage.setItem('lemma-theme',t);}catch(e){} });
+tbtn.addEventListener('click',()=>{ const t = document.documentElement.dataset.theme==='dark' ? 'light' : 'dark'; applyTheme(t); try{localStorage.setItem('lemma-theme-2',t);}catch(e){} });
 
 render();
 </script>
